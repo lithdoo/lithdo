@@ -1,0 +1,19 @@
+{
+  "name": "@chaxai/koa",
+  "version": "1.0.0",
+  "description": "ChaxAI Koa middleware for HTTP API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@chaxai/core": "file:../core",
+    "koa": "^2.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/koa": "^2.13.0"
+  }
+}

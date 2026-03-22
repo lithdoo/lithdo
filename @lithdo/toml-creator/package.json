@@ -1,0 +1,25 @@
+{
+  "name": "@lithdo/toml-creator",
+  "version": "1.0.0",
+  "main": "lib/toml.js",
+  "types": "lib/toml.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "toml",
+    "parser",
+    "config"
+  ],
+  "author": "lithdo <lithdo@outlook.com>",
+  "license": "ISC",
+  "description": "TOML parser and creator utility",
+  "dependencies": {
+    "toml": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "typescript": "^5.0.0"
+  }
+}

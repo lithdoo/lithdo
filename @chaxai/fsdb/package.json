@@ -1,0 +1,22 @@
+{
+  "name": "@chaxai/fsdb",
+  "version": "1.0.0",
+  "description": "ChaxAI file system database service",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@chaxai/core": "file:../core",
+    "@chaxai/conversation": "file:../conversation",
+    "@chaxai/koa": "file:../koa",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/uuid": "^9.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@chaxai/demo",
+  "version": "1.0.0",
+  "description": "Demo project for ChaxAI",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@chaxai/core": "file:../core",
+    "@chaxai/koa": "file:../koa",
+    "@chaxai/fsdb": "file:../fsdb",
+    "@chaxai/conversation": "file:../conversation",
+    "koa": "^2.14.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/koa": "^2.13.0",
+    "@types/node": "^20.0.0"
+  }
+}
