@@ -92,3 +92,4 @@ out/
 
 # Electron binary
 @lithdo/elecher/electron_bin/
+/@lithdo/scaner/lib/web/ChromeData
