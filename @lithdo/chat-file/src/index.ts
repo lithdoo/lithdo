@@ -1,7 +1,23 @@
+import fs from 'fs';
+import path from 'path';
 import { getCliOptions } from './cli';
 import { loadConfig } from './config';
 import { scanDirectory, readFiles } from './file-handler';
 import { callAI, callAIStream } from './ai-client';
+
+const writeOutputIfConfigured = (outputPath: string | undefined, content: string) => {
+  if (!outputPath) {
+    return;
+  }
+
+  const resolvedPath = path.isAbsolute(outputPath)
+    ? outputPath
+    : path.resolve(process.cwd(), outputPath);
+
+  fs.mkdirSync(path.dirname(resolvedPath), { recursive: true });
+  fs.writeFileSync(resolvedPath, content, 'utf8');
+  return resolvedPath;
+};
 
 async function main() {
   try {
@@ -13,18 +29,16 @@ async function main() {
       process.exit(1);
     }
 
-    console.log(`Scanning directory: ${config.directory}`);
     const files = scanDirectory(config.directory);
     
     if (files.length === 0) {
-      console.error('Error: No files found matching the pattern [{idx}]{role}.md');
+      console.error('Error: No files found matching the pattern [{idx}]{role}.md or [{idx}]{role}.json');
       process.exit(1);
     }
 
-    console.log(`Found ${files.length} files. Reading content...`);
     const messages = readFiles(files);
+    const quiet = config.quiet;
 
-    console.log(`Calling AI API with ${messages.length} messages...`);
     if (config.format === 'json') {
       const response = await callAI(
         config.apiKey,
@@ -32,23 +46,23 @@ async function main() {
         config.model,
         messages
       );
-      console.log(JSON.stringify({ response }, null, 2));
+      writeOutputIfConfigured(config.output, response);
+      if (!quiet) {
+        process.stdout.write(`${JSON.stringify({ response }, null, 2)}\n`);
+      }
     } else {
-      console.log('\nAI Response:');
-      console.log('=' .repeat(50));
       const response = await callAIStream(
         config.apiKey,
         config.apiBaseUrl,
         config.model,
         messages,
-        (chunk) => process.stdout.write(chunk)
+        (chunk) => {
+          if (!quiet) {
+            process.stdout.write(chunk);
+          }
+        }
       );
-      if (!response) {
-        console.log('(empty response)');
-      } else {
-        console.log('');
-      }
-      console.log('=' .repeat(50));
+      writeOutputIfConfigured(config.output, response);
     }
   } catch (error) {
     console.error('Error:', error);

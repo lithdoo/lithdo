@@ -2,7 +2,24 @@ import fs from 'fs';
 import path from 'path';
 import { FileInfo, Message } from './types';
 
-const FILE_PATTERN = /^\[(\d+)\](.+?)\.md$/;
+const FILE_PATTERN = /^\[(\d+)\](.+?)\.(md|json)$/i;
+
+const stripBom = (s: string) => (s.charCodeAt(0) === 0xfeff ? s.slice(1) : s);
+
+/** YAML front matter: opening `---` on first line, closing `---` on a later line. */
+export const stripYamlFrontMatter = (raw: string): string => {
+  const text = stripBom(raw);
+  const lines = text.split(/\r?\n/);
+  if (lines[0]?.trim() !== '---') {
+    return text;
+  }
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i].trim() === '---') {
+      return lines.slice(i + 1).join('\n');
+    }
+  }
+  return text;
+};
 
 export const scanDirectory = (directory: string): FileInfo[] => {
   const files: FileInfo[] = [];
@@ -18,10 +35,12 @@ export const scanDirectory = (directory: string): FileInfo[] => {
       } else if (entry.isFile()) {
         const match = entry.name.match(FILE_PATTERN);
         if (match) {
+          const ext = match[3].toLowerCase() as 'md' | 'json';
           files.push({
             path: fullPath,
             idx: parseInt(match[1], 10),
-            role: match[2]
+            role: match[2],
+            extension: ext
           });
         }
       }
@@ -34,7 +53,10 @@ export const scanDirectory = (directory: string): FileInfo[] => {
 
 export const readFiles = (files: FileInfo[]): Message[] => {
   return files.map(file => {
-    const content = fs.readFileSync(file.path, 'utf8');
+    let content = fs.readFileSync(file.path, 'utf8');
+    if (file.extension === 'md') {
+      content = stripYamlFrontMatter(content);
+    }
     return {
       role: file.role,
       content
