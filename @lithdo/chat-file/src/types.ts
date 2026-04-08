@@ -15,4 +15,6 @@ export interface Config {
   apiKey: string;
   apiBaseUrl: string;
   format: 'text' | 'json';
+  continueMode: boolean;
+  inputMode: boolean;
 }

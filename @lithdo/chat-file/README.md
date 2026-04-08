@@ -143,6 +143,8 @@ npm start -- --help
 | `-k, --api-key <key>` | API Key | 无 |
 | `-b, --api-base-url <url>` | Base URL | `https://api.openai.com/v1` |
 | `-f, --format <format>` | `text` 或 `json` | `text` |
+| `-i, --input` | 在终端读取输入并保存为下一条 `user` 消息后再执行 | 关闭 |
+| `-c, --continue` | 将本次 assistant 回复追加为下一条消息文件 | 关闭 |
 
 查看帮助：
 
@@ -179,6 +181,28 @@ node dist/index.js -d ./messages
 ```bash
 node dist/index.js -d ./messages -m gpt-4o -f json
 ```
+
+### 继续会话（保存 assistant 回复）
+
+```bash
+node dist/index.js -d ./messages --continue
+```
+
+启用后会在 `directory` 根目录下追加新文件：`[nextIdx]assistant.md`，用于下一轮继续对话。
+
+### 终端输入并执行
+
+```bash
+node dist/index.js -d ./messages --input
+```
+
+启用后会先在终端等待输入，将输入保存为 `directory` 根目录下的 `[nextIdx]user.md`，然后再调用模型执行。
+
+### nextIdx 计算规则
+
+- `nextIdx` 按当前目录已匹配到的消息文件中 **最大 idx + 1** 计算。
+- 若目标文件名已存在（例如已有同序号同角色文件），会继续递增直到找到可用文件名。
+- 不要求 idx 连续；例如现有 `[0]... [1]... [3]...`，下一条会从 `[4]...` 开始尝试。
 
 ### 使用自建兼容网关
 

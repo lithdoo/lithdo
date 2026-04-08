@@ -41,3 +41,38 @@ export const readFiles = (files: FileInfo[]): Message[] => {
     };
   });
 };
+
+export const appendAssistantMessage = (
+  directory: string,
+  files: FileInfo[],
+  content: string
+): string => {
+  return appendMessage(directory, files, 'assistant', content);
+};
+
+export const appendUserMessage = (
+  directory: string,
+  files: FileInfo[],
+  content: string
+): string => {
+  return appendMessage(directory, files, 'user', content);
+};
+
+const appendMessage = (
+  directory: string,
+  files: FileInfo[],
+  role: string,
+  content: string
+): string => {
+  const maxIdx = files.reduce((max, file) => Math.max(max, file.idx), -1);
+  let nextIdx = maxIdx + 1;
+  let filePath = path.join(directory, `[${nextIdx}]${role}.md`);
+
+  while (fs.existsSync(filePath)) {
+    nextIdx += 1;
+    filePath = path.join(directory, `[${nextIdx}]${role}.md`);
+  }
+
+  fs.writeFileSync(filePath, content, 'utf8');
+  return filePath;
+};

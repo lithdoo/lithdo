@@ -12,6 +12,8 @@ program
   .option('-k, --api-key <key>', 'AI API key')
   .option('-b, --api-base-url <url>', 'AI API base URL')
   .option('-f, --format <format>', 'Output format (text or json)', 'text')
+  .option('-i, --input', 'Read user input from terminal and append as next user message')
+  .option('-c, --continue', 'Append assistant reply to next message file')
   .parse(process.argv);
 
 export const getCliOptions = (): Partial<Config> => {
@@ -21,6 +23,8 @@ export const getCliOptions = (): Partial<Config> => {
     model: options.model,
     apiKey: options.apiKey,
     apiBaseUrl: options.apiBaseUrl,
-    format: options.format as 'text' | 'json'
+    format: options.format as 'text' | 'json',
+    continueMode: Boolean(options.continue),
+    inputMode: Boolean(options.input)
   };
 };

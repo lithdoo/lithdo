@@ -1,7 +1,24 @@
+import readline from 'readline';
 import { getCliOptions } from './cli';
 import { loadConfig } from './config';
-import { scanDirectory, readFiles } from './file-handler';
+import { appendAssistantMessage, appendUserMessage, readFiles, scanDirectory } from './file-handler';
 import { callAI, callAIStream } from './ai-client';
+
+const readUserInputFromTerminal = async (): Promise<string> => {
+  console.log('Enter user message. Finish with Ctrl+Z then Enter (Windows), or Ctrl+D (macOS/Linux).');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const lines: string[] = [];
+  for await (const line of rl) {
+    lines.push(line);
+  }
+
+  rl.close();
+  return lines.join('\n').trim();
+};
 
 async function main() {
   try {
@@ -14,8 +31,20 @@ async function main() {
     }
 
     console.log(`Scanning directory: ${config.directory}`);
-    const files = scanDirectory(config.directory);
-    
+    let files = scanDirectory(config.directory);
+
+    if (config.inputMode) {
+      const userContent = await readUserInputFromTerminal();
+      if (!userContent) {
+        console.error('Error: Empty input. Nothing was written.');
+        process.exit(1);
+      }
+
+      const userFilePath = appendUserMessage(config.directory, files, userContent);
+      console.log(`Saved user message: ${userFilePath}`);
+      files = scanDirectory(config.directory);
+    }
+
     if (files.length === 0) {
       console.error('Error: No files found matching the pattern [{idx}]{role}.md');
       process.exit(1);
@@ -25,8 +54,9 @@ async function main() {
     const messages = readFiles(files);
 
     console.log(`Calling AI API with ${messages.length} messages...`);
+    let response = '';
     if (config.format === 'json') {
-      const response = await callAI(
+      response = await callAI(
         config.apiKey,
         config.apiBaseUrl,
         config.model,
@@ -36,7 +66,7 @@ async function main() {
     } else {
       console.log('\nAI Response:');
       console.log('=' .repeat(50));
-      const response = await callAIStream(
+      response = await callAIStream(
         config.apiKey,
         config.apiBaseUrl,
         config.model,
@@ -49,6 +79,11 @@ async function main() {
         console.log('');
       }
       console.log('=' .repeat(50));
+    }
+
+    if (config.continueMode) {
+      const savedPath = appendAssistantMessage(config.directory, files, response);
+      console.log(`Saved assistant reply: ${savedPath}`);
     }
   } catch (error) {
     console.error('Error:', error);
