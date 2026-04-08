@@ -60,13 +60,20 @@
 ```bash
 cd @lithdo/chat-file
 npm install
-npm run build
 ```
 
 全局安装本包（若仓库以 workspace 发布，请按你实际的 monorepo 方式安装）：
 
 ```bash
 npm install -g .
+```
+
+本地开发推荐使用 `npm link`：
+
+```bash
+cd @lithdo/chat-file
+npm link
+chat-file --help
 ```
 
 安装后若 `chat-file` 命令不可用，可直接使用：
@@ -77,7 +84,7 @@ node dist/index.js --help
 npm start -- --help
 ```
 
-> **说明**：`package.json` 的 `bin` 指向 `dist/index.js`。在类 Unix 系统上若需直接执行 `chat-file`，通常需要在入口文件首行加入 `#!/usr/bin/env node` 并重新构建；当前可用 `node dist/index.js` 规避。
+> **说明**：`package.json` 的 `bin` 指向 `dist/index.js`，并通过 `prepare` 自动构建可执行产物。若终端里仍找不到命令，请检查全局 npm bin 目录是否在 PATH 中。
 
 ---
 

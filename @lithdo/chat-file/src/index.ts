@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import readline from 'readline';
 import { getCliOptions } from './cli';
 import { loadConfig } from './config';
