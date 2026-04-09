@@ -7,6 +7,7 @@ export interface FileInfo {
   path: string;
   idx: number;
   role: string;
+  extension: 'md' | 'json';
 }
 
 export interface Config {
@@ -17,4 +18,6 @@ export interface Config {
   format: 'text' | 'json';
   continueMode: boolean;
   inputMode: boolean;
+  output?: string;
+  quiet: boolean;
 }

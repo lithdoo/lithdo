@@ -36,10 +36,6 @@ export const callAI = async (
   const url = `${trimTrailingSlash(apiBaseUrl)}/chat/completions`;
 
   try {
-    console.log('Sending request to AI API...');
-    console.log('Model:', model);
-    console.log('Messages:', JSON.stringify(messages, null, 2));
-
     const res = await fetch(url, {
       method: 'POST',
       headers: createHeaders(apiKey),
@@ -54,7 +50,6 @@ export const callAI = async (
       throw new Error(`AI API error (${res.status}): ${detail}`);
     }
 
-    console.log('API response received successfully');
     return data.choices?.[0]?.message?.content ?? '';
   } catch (error) {
     if (error instanceof Error && error.message.startsWith('AI API error')) {
@@ -76,10 +71,6 @@ export const callAIStream = async (
   const url = `${trimTrailingSlash(apiBaseUrl)}/chat/completions`;
 
   try {
-    console.log('Sending streaming request to AI API...');
-    console.log('Model:', model);
-    console.log('Messages:', JSON.stringify(messages, null, 2));
-
     const res = await fetch(url, {
       method: 'POST',
       headers: createHeaders(apiKey),
