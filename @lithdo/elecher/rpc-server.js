@@ -4,7 +4,7 @@ const { BrowserWindow } = require('electron');
 
 const windows = new Map();
 let windowIdCounter = 0;
-const configDir = process.env.ELECTRON_CONFIG_DIR || process.cwd();
+const configDir = process.env.ELECHER_CONFIG_DIR || process.cwd();
 
 const methods = {
   getVersion: function(args) {
@@ -85,10 +85,27 @@ const methods = {
   }
 };
 
-function createRpcServer(port = 9222) {
+function createRpcServer(port = 9222, options = {}) {
+  const requiredToken = options.token || '';
   const wss = new ws.WebSocketServer({ port });
 
   wss.on('connection', (clientWs, req) => {
+    if (requiredToken) {
+      let providedToken = '';
+      try {
+        const requestUrl = new URL(req.url || '/', `ws://localhost:${port}`);
+        providedToken = requestUrl.searchParams.get('token') || '';
+      } catch (err) {
+        providedToken = '';
+      }
+
+      if (providedToken !== requiredToken) {
+        console.warn('[JsonRpcServer] Unauthorized RPC connection rejected');
+        clientWs.close(1008, 'Unauthorized');
+        return;
+      }
+    }
+
     clientWs.on('message', (data) => {
       try {
         const request = JSON.parse(data.toString());

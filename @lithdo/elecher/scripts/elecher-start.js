@@ -2,7 +2,6 @@
 const { spawn } = require('child_process');
 const path = require('path');
 const fs = require('fs');
-const toml = require('toml');
 
 const electronBinDir = path.join(__dirname, '..', 'electron_bin');
 const mainPath = path.join(__dirname, '..', 'main.js');
@@ -10,50 +9,82 @@ const mainPath = path.join(__dirname, '..', 'main.js');
 const electronExe = process.platform === 'win32' ? 'electron.exe' : 'electron';
 const electronPath = path.join(electronBinDir, electronExe);
 
-function loadConfig(configPath) {
-  if (!configPath) {
-    return {
-      port: 9333,
-      cmd: null,
-      configDir: process.cwd()
-    };
+function parseDotEnv(content) {
+  const result = {};
+  const lines = content.split(/\r?\n/);
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith('#')) continue;
+
+    const eqIndex = line.indexOf('=');
+    if (eqIndex <= 0) continue;
+
+    const key = line.slice(0, eqIndex).trim();
+    if (!key) continue;
+
+    let value = line.slice(eqIndex + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    result[key] = value;
   }
 
-  const configFilePath = path.resolve(configPath);
-  if (!fs.existsSync(configFilePath)) {
-    console.error(`Config file not found: ${configFilePath}`);
-    process.exit(1);
+  return result;
+}
+
+function loadDotEnvFile(filePath) {
+  if (!fs.existsSync(filePath)) return;
+
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const parsed = parseDotEnv(content);
+
+  // Keep explicit shell env higher priority than .env file.
+  for (const [key, value] of Object.entries(parsed)) {
+    if (process.env[key] == null) {
+      process.env[key] = value;
+    }
   }
+}
 
-  const content = fs.readFileSync(configFilePath, 'utf-8');
-  const config = toml.parse(content);
+function loadConfig() {
+  loadDotEnvFile(path.join(process.cwd(), '.env'));
 
+  const envPort = Number.parseInt(process.env.ELECHER_RPC_PORT || '', 10);
+  const envConfigDir = process.env.ELECHER_CONFIG_DIR || process.cwd();
   return {
-    appName: config.appName || null,
-    port: config.port || 9333,
-    cmd: config.cmd || null,
-    configDir: path.dirname(configFilePath)
+    appName: process.env.ELECHER_APP_NAME || null,
+    port: Number.isFinite(envPort) ? envPort : 9333,
+    cmd: process.env.ELECHER_SUBCMD || null,
+    configDir: envConfigDir,
+    rpcToken: process.env.ELECHER_RPC_TOKEN || null
   };
 }
 
-const configPath = process.argv[2] || 'app.toml';
-const config = loadConfig(configPath);
+const config = loadConfig();
 
 console.log('[elecher-start] Config:', config);
 
 const env = { ...process.env };
 
 if (config.appName) {
-  env.ELECTRON_APP_NAME = config.appName;
+  env.ELECHER_APP_NAME = config.appName;
 }
 
-env.ELECTRON_RPC_PORT = config.port.toString();
+env.ELECHER_RPC_PORT = config.port.toString();
 
 if (config.cmd) {
-  env.ELECTRON_SUBCMD = config.cmd;
+  env.ELECHER_SUBCMD = config.cmd;
 }
 
-env.ELECTRON_CONFIG_DIR = config.configDir;
+env.ELECHER_CONFIG_DIR = config.configDir;
+if (config.rpcToken) {
+  env.ELECHER_RPC_TOKEN = config.rpcToken;
+}
 
 console.log('[elecher-start] Electron path:', electronPath);
 

@@ -1,4 +1,8 @@
-const ws = new WebSocket('ws://localhost:9333');
+const token = process.env.ELECHER_RPC_TOKEN || '';
+const wsUrl = token
+  ? `ws://localhost:9333?token=${encodeURIComponent(token)}`
+  : 'ws://localhost:9333';
+const ws = new WebSocket(wsUrl);
 
 ws.onopen = () => {
   console.log('[RPC] Connected');

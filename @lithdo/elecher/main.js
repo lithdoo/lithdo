@@ -16,16 +16,18 @@ if (process.platform === 'win32') {
 let rpcServer;
 let subprocess;
 
-process.env.ELECTRON_RPC_PORT = process.env.ELECTRON_RPC_PORT || '9333';
-const appName = process.env.ELECTRON_APP_NAME;
-const rpcPort = parseInt(process.env.ELECTRON_RPC_PORT || '9333', 10);
-const subCmd = process.env.ELECTRON_SUBCMD;
-const configDir = process.env.ELECTRON_CONFIG_DIR || process.cwd();
+process.env.ELECHER_RPC_PORT = process.env.ELECHER_RPC_PORT || '9333';
+const appName = process.env.ELECHER_APP_NAME;
+const rpcPort = parseInt(process.env.ELECHER_RPC_PORT || '9333', 10);
+const subCmd = process.env.ELECHER_SUBCMD;
+const configDir = process.env.ELECHER_CONFIG_DIR || process.cwd();
+const rpcToken = process.env.ELECHER_RPC_TOKEN || '';
 
 console.log('[Main] App name:', appName);
 console.log('[Main] RPC port:', rpcPort);
 console.log('[Main] SubCmd:', subCmd);
 console.log('[Main] Config dir:', configDir);
+console.log('[Main] RPC token enabled:', Boolean(rpcToken));
 
 if (appName) {
   app.setName(appName);
@@ -47,7 +49,7 @@ function startSubprocess(cmd) {
 
   const env = {
     ...process.env,
-    ELECTRON_CONFIG_DIR: configDir,
+    ELECHER_CONFIG_DIR: configDir,
     PYTHONIOENCODING: 'utf-8'
   };
 
@@ -85,7 +87,7 @@ process.on('SIGTERM', () => {
 });
 
 app.whenReady().then(() => {
-  rpcServer = createRpcServer(rpcPort);
+  rpcServer = createRpcServer(rpcPort, { token: rpcToken });
 
   if (subCmd) {
     startSubprocess(subCmd);
