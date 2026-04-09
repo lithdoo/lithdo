@@ -3,8 +3,11 @@ const path = require('path');
 const { BrowserWindow } = require('electron');
 
 const windows = new Map();
-let windowIdCounter = 0;
 const configDir = process.env.ELECHER_CONFIG_DIR || process.cwd();
+
+function createRandomWindowId() {
+  return `window_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
 
 const methods = {
   getVersion: function(args) {
@@ -21,9 +24,18 @@ const methods = {
     return app.getPath(args.name);
   },
   openWindow: function(args) {
-    const { title, width, height, loadUrl, devTool } = args;
-    
-    const windowId = `window_${++windowIdCounter}`;
+    const { id, title, width, height, loadUrl, devTool } = args;
+    let windowId = typeof id === 'string' && id.trim() ? id.trim() : '';
+
+    if (windowId && windows.has(windowId)) {
+      throw { code: -32602, message: `Window id already exists: ${windowId}` };
+    }
+
+    if (!windowId) {
+      do {
+        windowId = createRandomWindowId();
+      } while (windows.has(windowId));
+    }
     
     let url = loadUrl;
     if (loadUrl && !loadUrl.startsWith('http://') && !loadUrl.startsWith('https://') && !loadUrl.startsWith('file://')) {
