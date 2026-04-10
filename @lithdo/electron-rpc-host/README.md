@@ -1,4 +1,4 @@
-# @lithdo/elecher
+# @lithdo/electron-rpc-host
 
 一个基于 Electron 的本地桌面运行壳。  
 安装后会下载本机平台 Electron，并在运行时启动本地 WebSocket JSON-RPC 服务，供业务进程调用。
@@ -13,7 +13,7 @@
 1. 安装：
 
 ```bash
-npm i @lithdo/elecher
+npm i @lithdo/electron-rpc-host
 ```
 
 2. 在运行目录创建 `.env`：
@@ -29,7 +29,7 @@ ELECHER_CONFIG_DIR=.
 3. 启动：
 
 ```bash
-npx elecher
+npx electron-rpc-host
 ```
 
 ## 配置项

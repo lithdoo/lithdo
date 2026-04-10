@@ -1,15 +1,15 @@
 {
-  "name": "@lithdo/elecher",
+  "name": "@lithdo/electron-rpc-host",
   "version": "1.0.1",
   "main": "index.js",
   "bin": {
-    "elecher-start": "./scripts/elecher-start.js",
-    "elecher": "./scripts/elecher-start.js"
+    "electron-rpc-host-start": "./scripts/electron-rpc-host-start.js",
+    "electron-rpc-host": "./scripts/electron-rpc-host-start.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node -e \"console.log('electron-rpc-host test: no automated tests yet')\"",
     "postinstall": "node scripts/download-electron.js",
-    "start": "node scripts/elecher-start.js"
+    "start": "node scripts/electron-rpc-host-start.js"
   },
   "author": "",
   "license": "ISC",

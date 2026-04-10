@@ -67,7 +67,7 @@ function loadConfig() {
 
 const config = loadConfig();
 
-console.log('[elecher-start] Config:', config);
+console.log('[electron-rpc-host-start] Config:', config);
 
 const env = { ...process.env };
 
@@ -86,7 +86,7 @@ if (config.rpcToken) {
   env.ELECHER_RPC_TOKEN = config.rpcToken;
 }
 
-console.log('[elecher-start] Electron path:', electronPath);
+console.log('[electron-rpc-host-start] Electron path:', electronPath);
 
 const child = spawn(electronPath, [mainPath], {
   stdio: 'inherit',
